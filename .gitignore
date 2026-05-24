@@ -25,4 +25,7 @@ target
 
 /target
 
+# Lockfile is not tracked for this library crate
+Cargo.lock
+
 .codebook.toml
