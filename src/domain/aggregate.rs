@@ -28,3 +28,21 @@ where
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use uuid::Uuid;
+
+    use super::*;
+
+    #[test]
+    fn update_version() {
+        let version = Version::try_from(2).unwrap();
+        let original_version = Version::try_from(1).unwrap();
+        let mut meta = AggregateMeta::new(Uuid::now_v7(), original_version.clone());
+        meta.update_version();
+        meta.update_version();
+        assert_eq!(meta.version, version);
+        assert_eq!(meta.original_version, original_version);
+    }
+}

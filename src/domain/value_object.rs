@@ -28,3 +28,29 @@ impl Version {
         self.0 += 1
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn version_equal_0() {
+        let version = Version::try_from(0);
+        assert!(version.is_err(), "version cannot be equal 0");
+    }
+
+    #[test]
+    fn version_more_then_0() {
+        let version = Version::try_from(1);
+        assert!(version.is_ok(), "version can be more then 0");
+        let version = version.unwrap();
+        assert_eq!(version.0, 1, "expected version 1");
+    }
+
+    #[test]
+    fn update_version() {
+        let mut version = Version::try_from(1).unwrap();
+        version.update();
+        assert_eq!(version.0, 2, "expected updated version 2");
+    }
+}
