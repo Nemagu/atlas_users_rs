@@ -18,31 +18,21 @@ pub(crate) struct User {
 }
 
 impl User {
-    pub(crate) fn new(id: UserId, email: Email, birthday: Birthday) -> DomainResult<Self> {
-        Ok(Self {
-            meta: AggregateMeta::new(id, Version::try_from(1)?),
+    pub(crate) fn new(
+        id: UserId,
+        email: Email,
+        birthday: Birthday,
+        role: UserRole,
+        state: UserState,
+        version: Version,
+    ) -> Self {
+        Self {
+            meta: AggregateMeta::new(id, version),
             email,
             birthday,
-            role: UserRole::User,
-            state: UserState::Active,
-        })
-    }
-
-    pub(crate) fn restore(
-        id: Uuid,
-        email: String,
-        birthday: NaiveDate,
-        role: &str,
-        state: &str,
-        version: u64,
-    ) -> DomainResult<Self> {
-        Ok(Self {
-            meta: AggregateMeta::new(id.into(), version.try_into()?),
-            email: email.try_into()?,
-            birthday: birthday.try_into()?,
-            role: role.try_into()?,
-            state: state.try_into()?,
-        })
+            role,
+            state,
+        }
     }
 
     pub(crate) fn id(&self) -> &UserId {
@@ -95,14 +85,14 @@ impl User {
         }
     }
 
-    pub(crate) fn new_role(&mut self, status: UserRole) -> DomainResult<()> {
+    pub(crate) fn new_role(&mut self, role: UserRole) -> DomainResult<()> {
         self.check_state()?;
-        if self.role == status {
+        if self.role == role {
             Err(DomainError::InvalidData(
-                "current status is equal new status".into(),
+                "current status is equal new role".into(),
             ))
         } else {
-            self.role = status;
+            self.role = role;
             self.meta.update_version();
             Ok(())
         }
@@ -158,8 +148,6 @@ mod tests {
     use fake::Fake;
     use fake::faker::internet::en::SafeEmail;
 
-    use crate::domain::user;
-
     use super::*;
 
     fn valid_email() -> Email {
@@ -178,76 +166,10 @@ mod tests {
             UserId::from(Uuid::now_v7()),
             valid_email(),
             valid_birthday(None),
-        )
-        .unwrap()
-    }
-
-    #[test]
-    fn test_create_new_user() {
-        let email = valid_email();
-        let birthday = valid_birthday(None);
-        let user = User::new(
-            UserId::from(Uuid::now_v7()),
-            email.clone(),
-            birthday.clone(),
-        );
-
-        assert!(user.is_ok(), "new user is not valid");
-        let user = user.unwrap();
-
-        assert_eq!(
-            *user.version(),
-            Version::try_from(1).unwrap(),
-            "expected user version 1"
-        );
-        assert_eq!(*user.email(), email, "user has different email");
-        assert_eq!(*user.birthday(), birthday, "user has different birthday");
-    }
-
-    #[test]
-    fn test_restore_user() {
-        let id_raw = Uuid::now_v7();
-        let email_raw: String = SafeEmail().fake();
-        let birthday_raw = NaiveDate::from_ymd_opt(1999, 7, 21).unwrap();
-        let role_raw: String = UserRole::User.into();
-        let state_raw: String = UserState::Active.into();
-        let version_raw = 1;
-
-        let user = User::restore(
-            id_raw,
-            email_raw.clone(),
-            birthday_raw,
-            &role_raw,
-            &state_raw,
-            version_raw,
-        );
-
-        assert!(user.is_ok(), "restored user is not valid");
-
-        let user = user.unwrap();
-
-        assert_eq!(*user.id(), UserId::from(id_raw), "user's id is different");
-        assert_eq!(
-            *user.email(),
-            Email::try_from(email_raw).unwrap(),
-            "user's email is different"
-        );
-        assert_eq!(
-            *user.birthday(),
-            Birthday::try_from(birthday_raw).unwrap(),
-            "user's birthday is different"
-        );
-        assert_eq!(*user.role(), UserRole::User, "user's role is different");
-        assert_eq!(
-            *user.state(),
+            UserRole::User,
             UserState::Active,
-            "user's state is different"
-        );
-        assert_eq!(
-            *user.version(),
-            Version::try_from(version_raw).unwrap(),
-            "user's version is different"
-        );
+            Version::default(),
+        )
     }
 
     #[test]

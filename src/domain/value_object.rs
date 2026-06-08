@@ -23,6 +23,12 @@ impl From<Version> for u64 {
     }
 }
 
+impl Default for Version {
+    fn default() -> Self {
+        Self(1)
+    }
+}
+
 impl Version {
     pub(super) fn update(&mut self) {
         self.0 += 1
