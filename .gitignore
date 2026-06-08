@@ -35,3 +35,4 @@ codebook.toml
 
 docs/book/
 docs/src/**/*.html
+docs/**/*.js
