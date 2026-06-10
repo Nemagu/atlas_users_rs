@@ -23,6 +23,12 @@ impl From<Version> for u64 {
     }
 }
 
+impl From<&Version> for u64 {
+    fn from(value: &Version) -> Self {
+        value.0
+    }
+}
+
 impl Default for Version {
     fn default() -> Self {
         Self(1)

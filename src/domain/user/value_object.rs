@@ -18,6 +18,12 @@ impl From<UserId> for Uuid {
     }
 }
 
+impl From<&UserId> for Uuid {
+    fn from(value: &UserId) -> Self {
+        value.0
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct Birthday(NaiveDate);
 
@@ -43,6 +49,12 @@ impl From<Birthday> for NaiveDate {
     }
 }
 
+impl From<&Birthday> for NaiveDate {
+    fn from(value: &Birthday) -> Self {
+        value.0
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct Email(String);
 
@@ -51,6 +63,12 @@ impl TryFrom<String> for Email {
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         Ok(Self(value))
+    }
+}
+
+impl From<&Email> for String {
+    fn from(value: &Email) -> Self {
+        value.0.clone()
     }
 }
 
@@ -86,12 +104,19 @@ impl TryFrom<&str> for UserRole {
     }
 }
 
-impl From<UserRole> for String {
-    fn from(value: UserRole) -> Self {
+impl From<&UserRole> for String {
+    fn from(value: &UserRole) -> Self {
         match value {
             UserRole::Admin => "admin".into(),
             UserRole::User => "user".into(),
         }
+    }
+}
+
+impl From<UserRole> for String {
+    fn from(value: UserRole) -> Self {
+        let r = &value;
+        r.into()
     }
 }
 
@@ -103,6 +128,10 @@ pub(crate) enum UserState {
 }
 
 impl UserState {
+    pub(crate) fn is_active(&self) -> bool {
+        *self == Self::Active
+    }
+
     pub(crate) fn is_frozen(&self) -> bool {
         *self == Self::Frozen
     }
@@ -127,13 +156,20 @@ impl TryFrom<&str> for UserState {
     }
 }
 
-impl From<UserState> for String {
-    fn from(value: UserState) -> Self {
+impl From<&UserState> for String {
+    fn from(value: &UserState) -> Self {
         match value {
             UserState::Active => "active".into(),
             UserState::Frozen => "frozen".into(),
             UserState::Deleted => "deleted".into(),
         }
+    }
+}
+
+impl From<UserState> for String {
+    fn from(value: UserState) -> Self {
+        let r = &value;
+        r.into()
     }
 }
 
