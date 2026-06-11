@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::domain::user::aggregate::User;
 
-pub(crate) struct UserDTO {
+pub(crate) struct UserSimpleDTO {
     pub(crate) id: Uuid,
     pub(crate) email: String,
     pub(crate) birthday: NaiveDate,
@@ -12,7 +12,7 @@ pub(crate) struct UserDTO {
     pub(crate) version: u64,
 }
 
-impl From<&User> for UserDTO {
+impl From<&User> for UserSimpleDTO {
     fn from(value: &User) -> Self {
         Self::new(
             value.id().into(),
@@ -25,7 +25,7 @@ impl From<&User> for UserDTO {
     }
 }
 
-impl UserDTO {
+impl UserSimpleDTO {
     pub(crate) fn new(
         id: Uuid,
         email: String,
